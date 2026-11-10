@@ -1,0 +1,2 @@
+import { Router } from 'express'; import * as c from '../controllers/resourceController.js'; import { authenticate,requireAdmin } from '../middleware/authMiddleware.js'; import { asyncHandler } from '../utils/errors.js';
+const r=Router(); r.get('/',asyncHandler(c.list)); r.get('/:id/schedule',asyncHandler(c.schedule)); r.get('/:id',asyncHandler(c.get)); r.post('/',authenticate,requireAdmin,asyncHandler(c.create)); r.put('/:id',authenticate,requireAdmin,asyncHandler(c.update)); r.delete('/:id',authenticate,requireAdmin,asyncHandler(c.remove)); export default r;

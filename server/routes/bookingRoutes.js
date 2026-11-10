@@ -1,0 +1,2 @@
+import { Router } from 'express'; import * as c from '../controllers/bookingController.js'; import { authenticate,requireAdmin } from '../middleware/authMiddleware.js'; import { asyncHandler } from '../utils/errors.js';
+const r=Router(); r.use(authenticate); r.post('/availability',asyncHandler(c.check)); r.post('/',asyncHandler(c.create)); r.get('/my',asyncHandler(c.mine)); r.patch('/:id/cancel',asyncHandler(c.cancel)); export default r;

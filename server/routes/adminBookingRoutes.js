@@ -1,0 +1,2 @@
+import { Router } from 'express'; import * as c from '../controllers/bookingController.js'; import { authenticate,requireAdmin } from '../middleware/authMiddleware.js'; import { asyncHandler } from '../utils/errors.js';
+const r=Router(); r.use(authenticate,requireAdmin); r.get('/',asyncHandler(c.all)); r.patch('/:id/approve',asyncHandler(c.approve)); r.patch('/:id/reject',asyncHandler(c.reject)); export default r;
