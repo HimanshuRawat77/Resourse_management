@@ -17,9 +17,63 @@ A small university portal for reserving shared spaces. Students submit requests,
 - **Server:** Node.js, Express, MySQL, JWT, bcryptjs.
 - **LLD:** Plain Java 17+; no framework.
 
-```text
-React / Axios → Express controller → service → repository → MySQL
+The request path is React/Axios → Express controller → service → repository → MySQL.
+
+## Visual overview
+
+GitHub displays these diagrams directly in the README, so the main flows are visible without opening separate files.
+
+### System architecture
+
+```mermaid
+flowchart TB
+  Browser[React + Vite + Tailwind<br/>React Router and Axios] -->|REST JSON + JWT| API[Express routes and controllers]
+  API --> Auth[JWT authentication and admin middleware]
+  API --> Services[Business services]
+  Services --> Repositories[SQL repositories]
+  Repositories --> DB[(MySQL)]
+  Auth -. password verification .-> Bcrypt[bcrypt]
+  Auth -. signed token .-> JWT[JWT]
 ```
+
+### Booking flow
+
+```mermaid
+flowchart LR
+  User[User] --> Select[Select resource and time]
+  Select --> Check{Available?}
+  Check -->|No| Conflict[Show booking conflict]
+  Check -->|Yes| Submit[Create booking request]
+  Submit --> Pending[PENDING]
+  Pending --> Admin[Admin reviews]
+  Admin --> Decision{Decision}
+  Decision -->|Approve| Approved[APPROVED]
+  Decision -->|Reject| Rejected[REJECTED]
+  Approved --> Notice[Notify user]
+  Rejected --> Notice
+```
+
+### Use case diagram
+
+![URMS use case diagram showing User and Admin actions](docs/diagrams/use-cases.svg)
+
+### ER diagram
+
+![URMS ER diagram showing users, resources, bookings, and notifications](docs/diagrams/er-diagram.svg)
+
+### Booking approval sequence
+
+This sequence diagram shows how an admin approval moves through the UI, controller, service, and repository, then creates a user notification.
+
+1. Admin clicks **Approve** on a pending booking.
+2. The Admin UI sends `PATCH /api/admin/bookings/:id/approve`.
+3. `BookingController` passes the request to `BookingService`.
+4. `BookingService` loads the booking through `BookingRepository` and verifies it is still `PENDING`.
+5. The repository updates the status to `APPROVED` in MySQL.
+6. `NotificationService` creates a notification for the user.
+7. The updated booking returns through the controller, and the Admin UI receives `200 OK`.
+
+![URMS booking approval sequence diagram](docs/diagrams/booking-approval-sequence.png)
 
 See `docs/architecture.md`, `docs/diagrams/`, and the other viva-friendly notes in `docs/`.
 
@@ -76,6 +130,17 @@ docs/         Requirements, use cases, API, design notes and Mermaid diagrams
    ```
 
    Open `http://localhost:5173`. To use another API URL, set `VITE_API_URL` before starting Vite.
+
+## Deploy with Docker
+
+The root `Dockerfile` builds the React client and serves it from Express, so the app and API use one public URL. Deploy the repository root to a Docker-capable host and attach a MySQL 8 database. Set `PORT` to the port supplied by the host, then provide `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`, and a unique, long `JWT_SECRET`.
+
+Set `ADMIN_PASSWORD` to a unique password to create the initial admin account, and optionally set `ADMIN_EMAIL` to change its email. `DEMO_USER_PASSWORD` is optional and creates the demo student only when explicitly set. Do not use the local demo passwords on a public deployment. On startup, the app creates the existing tables if needed and seeds the three resources. `/api/health` checks the app and database connection.
+
+```sh
+docker build -t urms .
+docker run --env-file server/.env -p 5000:5000 urms
+```
 
 ## Demo credentials and flow
 
