@@ -1,0 +1,8 @@
+erDiagram
+  users ||--o{ bookings : creates
+  resources ||--o{ bookings : reserved_for
+  users ||--o{ notifications : receives
+  users { INT id PK; VARCHAR name; VARCHAR email UK; VARCHAR password; ENUM role; TIMESTAMP created_at }
+  resources { INT id PK; VARCHAR name; ENUM type; VARCHAR location; INT capacity; ENUM status; TEXT description; TIMESTAMP created_at }
+  bookings { INT id PK; INT user_id FK; INT resource_id FK; DATETIME start_time; DATETIME end_time; VARCHAR purpose; INT expected_attendees; ENUM status; TIMESTAMP created_at }
+  notifications { INT id PK; INT user_id FK; VARCHAR message; BOOLEAN is_read; TIMESTAMP created_at }

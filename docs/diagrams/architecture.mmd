@@ -1,0 +1,8 @@
+flowchart TB
+  Browser[React + Vite + Tailwind\nReact Router / Axios] -->|REST JSON + JWT| Routes[Express routes and controllers]
+  Routes --> Auth[JWT auth and admin middleware]
+  Routes --> Services[Business services]
+  Services --> Repositories[SQL repositories]
+  Repositories --> DB[(MySQL)]
+  Auth -. password verification .-> Bcrypt[bcrypt]
+  Auth -. signed token .-> JWT[JWT]

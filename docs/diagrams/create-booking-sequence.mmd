@@ -1,0 +1,17 @@
+sequenceDiagram
+  actor User
+  participant UI as React UI
+  participant Controller as BookingController
+  participant Service as BookingService
+  participant ResourceRepo as ResourceRepository
+  participant BookingRepo as BookingRepository
+  User->>UI: Select resource, time and purpose
+  UI->>Controller: POST /api/bookings (JWT)
+  Controller->>Service: create(userId, request)
+  Service->>ResourceRepo: find resource
+  ResourceRepo-->>Service: resource and capacity/status
+  Service->>BookingRepo: transaction: lock resource and check overlap
+  BookingRepo-->>Service: no conflict, insert PENDING
+  Service-->>Controller: booking
+  Controller-->>UI: 201 PENDING
+  UI-->>User: Show booking confirmation

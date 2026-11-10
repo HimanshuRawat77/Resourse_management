@@ -1,0 +1,28 @@
+classDiagram
+  class User { -int id; -String name; -String email; -String role }
+  class Resource { <<abstract>> -int id; -String name; -String location; -int capacity; -String status; +isAvailable()*; +getType()* }
+  class Auditorium
+  class LibraryHall
+  class MultipurposeHall
+  class Booking { -int id; -LocalDateTime startTime; -LocalDateTime endTime; -String purpose; -int expectedAttendees; -String status; +setStatus(String) }
+  class Notification { -int userId; -String message; -LocalDateTime createdAt }
+  class BookingService { +create(Booking); +changeStatus(Booking,String) }
+  class ResourceService { +findById(int) }
+  class NotificationService { +notify(User,String) }
+  class BookingRepository { <<interface>> +save(Booking) }
+  class ResourceRepository { <<interface>> +findById(int) }
+  class BookingStrategy { <<interface>> +validate(Booking,Resource) }
+  class BookingObserver { <<interface>> +onStatusChanged(Booking) }
+  class ResourceFactory { +createResource(String)$ }
+  Resource <|-- Auditorium
+  Resource <|-- LibraryHall
+  Resource <|-- MultipurposeHall
+  User "1" --> "*" Booking : requests
+  Resource "1" --> "*" Booking : reserves
+  User "1" --> "*" Notification : receives
+  BookingService --> BookingRepository
+  BookingService --> BookingStrategy
+  BookingService --> BookingObserver
+  ResourceService --> ResourceRepository
+  NotificationObserver ..|> BookingObserver
+  ResourceFactory ..> Resource : creates

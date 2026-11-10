@@ -1,0 +1,16 @@
+sequenceDiagram
+  actor Admin
+  participant UI as Admin UI
+  participant Controller as BookingController
+  participant Service as BookingService
+  participant BookingRepo as BookingRepository
+  participant Notice as NotificationService
+  Admin->>UI: Approve pending request
+  UI->>Controller: PATCH /api/admin/bookings/:id/approve
+  Controller->>Service: decide(id, APPROVED)
+  Service->>BookingRepo: load and validate PENDING
+  BookingRepo-->>Service: booking
+  Service->>BookingRepo: update status
+  Service->>Notice: create user notification
+  Service-->>Controller: updated booking
+  Controller-->>UI: 200 APPROVED

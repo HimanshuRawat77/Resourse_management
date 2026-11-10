@@ -1,0 +1,17 @@
+flowchart TD
+  S([Start]) --> L[Login]
+  L --> V[View resources]
+  V --> R[Select resource]
+  R --> T[Select date and time]
+  T --> C[Check availability]
+  C --> A{Available?}
+  A -- No --> CF[Show conflict]
+  CF --> E([End])
+  A -- Yes --> P[Enter purpose and attendees]
+  P --> D[Validate request]
+  D --> OK{Valid?}
+  OK -- No --> ER[Show validation error]
+  ER --> E
+  OK -- Yes --> B[Create booking]
+  B --> Q[Status = PENDING]
+  Q --> E
